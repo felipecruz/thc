@@ -43,9 +43,8 @@ def build_main(function_names, file_name):
 
     main_template = \
 '''
-#include <stdint.h>
+%(include_text)s
 #include <thc.h>
-#include <utf8v.h>
 #include "%(file_name)s"
 
 int main(int argc, char **argv) {
