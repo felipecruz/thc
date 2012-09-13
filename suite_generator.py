@@ -36,7 +36,7 @@ class MethodVisitor(NodeVisitor):
             self.visit(child)
         self.current_parent = oldparent
 
-def build_main(function_names, file_name):
+def build_main(function_names, file_name, include_text):
     """
         I'll build C code from an AST in near future :)
     """
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 
     return thc_run(THC_VERBOSE);
 }
-''' % dict(file_name=file_name)
+''' % dict(file_name=file_name, include_text=include_text)
 
     test_call = "\n    thc_addtest(%(function_name)s);"
 
@@ -65,9 +65,19 @@ int main(int argc, char **argv) {
 
 def main(file_path):
     dir_and_name = file_path.split('/')
-    tests_dir = dir_and_name[0]
-    file_name = dir_and_name[1]
-    file_content = open(file_path, "rt").read()
+    if len(dir_and_name) > 1:
+        tests_dir = dir_and_name[0]
+        file_name = dir_and_name[1]
+    else:
+        tests_dir = "."
+        file_name = dir_and_name[0]
+
+    file_content = ""
+    lines = open(file_path, "rt").readlines()
+    for line in lines:
+        if line.startswith("#include"):
+            continue
+        file_content += line
 
     parser = CParser()
     generator = CGenerator()
@@ -77,7 +87,11 @@ def main(file_path):
     test_finder = MethodVisitor()
     test_finder.visit(ast)
 
-    suite_code = build_main(test_finder.test_functions, file_name)
+    include_text = ""
+
+    suite_code = build_main(test_finder.test_functions,
+                            file_name,
+                            include_text)
 
     suite_file = open("/".join([tests_dir, "suite.c"]), "wt")
     suite_file.write(suite_code)
