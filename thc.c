@@ -24,8 +24,8 @@ PRIVATE long nfailures = 0;
 PRIVATE long nsegfaults = 0;
 PRIVATE void (*tests[THC_MAX_TESTS])(void);
 
-PRIVATE void thc_add_success(const char *expr, const char *func, const char *filename, const int fileno);
-PRIVATE void thc_add_failure(const char *expr, const char *func, const char *filename, const int fileno);
+PRIVATE void thc_add_success(const char *expr, const char *func, const char *filename, const int fileno, const int silent);
+PRIVATE void thc_add_failure(const char *expr, const char *func, const char *filename, const int fileno, const int silent);
 PRIVATE void thc_report_tests(void);
 
 PRIVATE void thc_calc_time(struct timeval start, struct timeval stop, double *time_elapsed){
@@ -33,18 +33,18 @@ PRIVATE void thc_calc_time(struct timeval start, struct timeval stop, double *ti
 }
 
 
-PRIVATE void thc_add_success(const char *expr, const char *func, const char *filename, const int fileno) {
-    if (verbose_tests) {
+PRIVATE void thc_add_success(const char *expr, const char *func, const char *filename, const int fileno, const int silent) {
+    if (verbose_tests && !silent) {
         printf("%s%s ... OK %s[%s, %s:%d]\n", GREEN, expr, STOPCOLOR, func, filename, fileno);
-    } else {
+    } else if (!silent) {
         printf(".");
     }
 }
 
-PRIVATE void thc_add_failure(const char *expr, const char *func, const char *filename, const int fileno) {
-    if (verbose_tests) {
+PRIVATE void thc_add_failure(const char *expr, const char *func, const char *filename, const int fileno, const int silent) {
+    if (verbose_tests && !silent) {
         printf("%s%s ... FAIL %s[%s, %s:%d]\n", RED, expr, STOPCOLOR, func, filename, fileno);
-    } else {
+    } else if (!silent) {
         printf("F");
     }
     nfailures++;
@@ -64,11 +64,11 @@ PRIVATE void thc_report_tests(void) {
             time_elapsed, STOPCOLOR);
 }
 
-PUBLIC void thc_run_check(const int result, const char *expr, const char *func, const char *fname, const int fline) {
+PUBLIC void thc_run_check(const int result, const char *expr, const char *func, const char *fname, const int fline, const int silent) {
     if (result) {
-        thc_add_success(expr, func, fname, fline);
+        thc_add_success(expr, func, fname, fline, silent);
     } else {
-        thc_add_failure(expr, func, fname, fline);
+        thc_add_failure(expr, func, fname, fline, silent);
     }
 }
 

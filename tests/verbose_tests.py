@@ -28,6 +28,19 @@ class THCVerboseTestCase(THCTestCase):
 
 Run 1 test with 0 failures and 0 segfaults in SECONDS""")
 
+    def test_simple_successful_silent_ensure(self):
+        self.assertNoDiff("""\
+            #include "thc.h"
+            void one_should_equal_to_one() {
+                SILENT_ENSURE(1 == 1);
+            }
+            int main() {
+                thc_addtest(one_should_equal_to_one);
+                return thc_run(THC_VERBOSE);
+            }
+            """,
+            """Run 1 test with 0 failures and 0 segfaults in SECONDS""")
+
     def test_simple_unsuccessful_ensure(self):
         self.assertNoDiff("""\
             #include "thc.h"
